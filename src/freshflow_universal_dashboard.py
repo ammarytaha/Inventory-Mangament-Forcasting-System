@@ -438,19 +438,60 @@ def main():
     st.title("🍃 FreshFlow AI - Inventory Decision Engine")
     st.markdown("*AI-powered inventory recommendations personalized by location*")
     
-    # Data source selection
-    st.sidebar.header("📊 Data Source")
-    data_mode = st.sidebar.radio(
-        "Select Data Mode:",
-        ["🔮 Forecasting Data (ML Features)", "📈 Weekly Demand Data"],
-        help="Choose which dataset to use for analysis"
+    # Analysis Mode Selection
+    st.sidebar.header("🔄 Analysis Mode")
+    analysis_mode = st.sidebar.radio(
+        "Select Analysis Type:",
+        ["🧪 Testing Data (Pre-calculated)", "📊 Actual Analysis (Real Data)"],
+        help="""
+        **Testing Data**: Uses pre-processed test set for validation
+        **Actual Analysis**: Uses sampled real data for actual recommendations
+        """
     )
     
-    use_features = data_mode.startswith("🔮")
+    is_testing_mode = analysis_mode.startswith("🧪")
+    
+    # Data source selection - always use weekly data for actual demand values
+    # (features data has all zeros due to data prep issues)
+    st.sidebar.header("📊 Data Source")
+    
+    if is_testing_mode:
+        st.sidebar.info("📊 Using Testing Dataset (test set from data pipeline)")
+        use_features = False  # Use weekly data for better quality
+        max_places = 50
+    else:
+        # In actual analysis mode, give user choice about data volume
+        sample_choice = st.sidebar.radio(
+            "Data Volume:",
+            ["📌 Sample (First 10 Places)", "🔄 More Sample (First 30 Places)", "📈 Full Dataset"],
+            help="""
+            **Sample**: Faster processing, good for development/demos
+            **More Sample**: Better coverage, good for analysis
+            **Full**: All available data (may be slow)
+            """
+        )
+        
+        if "First 10" in sample_choice:
+            max_places = 10
+            st.sidebar.warning("⚡ Using 10 locations for faster processing")
+        elif "First 30" in sample_choice:
+            max_places = 30
+            st.sidebar.info("📍 Using 30 locations for better coverage")
+        else:
+            max_places = None  # No limit
+            st.sidebar.success("📊 Using all available locations")
+        
+        use_features = False  # Always use weekly data (features data has quality issues)
+        st.sidebar.info("📊 Using Weekly Demand Data (actual transaction data)")
     
     # Load data
     with st.spinner("Loading inventory data..."):
-        df = load_data(use_features=use_features)
+        if is_testing_mode:
+            df = load_data(use_features=False, max_places=50)
+            # Filter to test data only
+            df = df[df['train_val_test_flag'] == 'test'].copy() if 'train_val_test_flag' in df.columns else df
+        else:
+            df = load_data(use_features=False, max_places=max_places if max_places else 999999)
         
     if df is None or len(df) == 0:
         st.error("No data available. Please ensure the data analysis pipeline has been run.")
@@ -535,6 +576,17 @@ def main():
     
     # KPIs
     st.header(f"📍 {selected_place_name}")
+    
+    # Show mode information
+    if is_testing_mode:
+        st.info("🧪 **Testing Mode**: Using pre-validated test dataset")
+    else:
+        if "First 10" in sample_choice:
+            st.warning("📌 **Actual Analysis**: Using sample of 10 locations for demonstration purposes. See README for details.")
+        elif "First 30" in sample_choice:
+            st.info("🔄 **Actual Analysis**: Using sample of 30 locations with good coverage.")
+        else:
+            st.success("📈 **Actual Analysis**: Using complete dataset.")
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -704,10 +756,14 @@ def main():
                        mime="text/csv")
     
     st.divider()
-    st.markdown(f"*Data Source: Analyzed Data | {datetime.now().strftime('%Y-%m-%d %H:%M')}*")
     
-    # Note about data
-    st.info("ℹ️ **Note:** Expiration dates and shelf life are estimated based on product categories, as the original dataset doesn't include actual expiry tracking.")
+    # Show disclaimer based on mode
+    if is_testing_mode:
+        st.markdown("*Data Source: Test Dataset | Mode: Testing | Last Updated: " + datetime.now().strftime('%Y-%m-%d %H:%M') + "*")
+        st.info("ℹ️ **Testing Mode**: This uses validated test data for demonstration and validation purposes.")
+    else:
+        st.markdown("*Data Source: Actual Analysis | Mode: Real Data | Last Updated: " + datetime.now().strftime('%Y-%m-%d %H:%M') + "*")
+        st.success("✅ **Actual Analysis Mode**: Using real transaction data. See README for details on data sampling strategy.")
 
 
 if __name__ == "__main__":
