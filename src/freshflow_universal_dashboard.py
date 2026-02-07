@@ -523,7 +523,13 @@ def main():
     
     # Filter data
     place_data = df[df['place_id'] == selected_place].copy()
-    train_data = place_data[place_data['train_val_test_flag'] == 'train']
+    
+    # For testing mode: use all available data (which is test data)
+    # For actual analysis: use training data for history to avoid data leakage
+    if is_testing_mode:
+        history_data = place_data  # Use test data directly
+    else:
+        history_data = place_data[place_data['train_val_test_flag'] == 'train']  # Use training data only
     
     # Generate recommendations
     items = place_data[['item_id', 'item_title', 'demand_type']].drop_duplicates()
@@ -534,7 +540,7 @@ def main():
         item_title = item['item_title'] if pd.notna(item['item_title']) else f"Item {item_id}"
         demand_type = item['demand_type'] if pd.notna(item['demand_type']) else 'Smooth'
         
-        history = train_data[train_data['item_id'] == item_id].sort_values('week_start')
+        history = history_data[history_data['item_id'] == item_id].sort_values('week_start')
         
         if len(history) < 2:
             continue
