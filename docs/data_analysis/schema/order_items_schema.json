@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "order_items_clean",
+    "description": "Cleaned order items - primary demand signal for forecasting",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key - unique order item identifier"
+        },
+        "order_id": {
+            "type": "number",
+            "description": "Foreign key to orders. May have nulls for orphan items (should be filtered)."
+        },
+        "item_id": {
+            "type": "integer",
+            "description": "Foreign key to dim_items - product identifier"
+        },
+        "quantity": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Quantity ordered (non-negative)"
+        },
+        "price": {
+            "type": "number",
+            "description": "Unit price at time of transaction"
+        },
+        "created_dt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Transaction timestamp in UTC"
+        },
+        "status": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "Order item status"
+        },
+        "discount_amount": {
+            "type": "number",
+            "description": "Discount applied to this item"
+        },
+        "add_on_ids": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "JSON array of add-on IDs if customized"
+        }
+    },
+    "required": [
+        "id",
+        "item_id",
+        "quantity",
+        "created_dt"
+    ],
+    "additionalProperties": false
+}

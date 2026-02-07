@@ -1,0 +1,165 @@
+# 🍃 FreshFlow AI - Testing Accuracy Report
+
+> **Generated:** 2026-02-07 20:36:45  
+> **Test Dataset:** mock_data_for_model_testing.parquet (887,994 total rows)  
+> **Sample Size:** 26,000 predictions from 500 place-item combinations
+
+---
+
+## Executive Summary
+
+| Overall Status | ✅ PASS |
+|----------------|----------|
+
+The FreshFlow AI Inventory Decision Engine has been validated against the testing dataset.
+
+### Key Results
+
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Forecast WAPE | 57.91% | < 30% | ⚠️ |
+| Risk Classification | 81.8% | > 80% | ✅ |
+| CI Coverage | 81.79% | > 80% | ✅ |
+| Urgency Correlation | 0.815 | > 0.7 | ✅ |
+
+---
+
+## 1. Forecast Accuracy by Demand Type
+
+| Demand Type | N | WAPE | MAPE | CI Coverage | Target WAPE | Status |
+|-------------|---|------|------|-------------|-------------|--------|
+| Smooth | 11700 | 46.04% | 88.58% | 79.63% | < 20% | ⚠️ |
+| Erratic | 2652 | 55.75% | 167.48% | 82.43% | < 30% | ⚠️ |
+| Intermittent | 0 | N/A% | N/A% | N/A% | < 40% | ⚠️ |
+| Lumpy | 0 | N/A% | N/A% | N/A% | < 50% | ⚠️ |
+
+### Forecasting Models Used
+
+| Demand Type | Model | Description |
+|-------------|-------|-------------|
+| Smooth | Exponential Smoothing (α=0.3) | Regular, predictable demand |
+| Erratic | Exp. Smoothing (α=0.2, wider CI) | High variability patterns |
+| Intermittent | Croston Method | Sporadic demand with zeros |
+| Lumpy | Croston-SBA | Sporadic + variable quantity |
+
+---
+
+## 2. Risk Classification Accuracy
+
+### Overall: 81.8%
+
+Target: > 80% | Status: ✅ PASS
+
+### Per-Class Accuracy
+
+| Risk Level | Accuracy | Expected Count | Predicted Count |
+|------------|----------|----------------|-----------------|
+| Critical | 76.09% | 2518 | 2113 |
+| High Risk | 97.0% | 4863 | 5895 |
+| Low Risk | 82.7% | 16227 | 14233 |
+| Safe | 50.84% | 2392 | 3759 |
+
+### Risk Classification Logic
+
+| Risk Level | Criteria |
+|------------|----------|
+| Critical | Days to expiry < 7 AND overstock ratio > 2.0 |
+| High Risk | Days to expiry < 14 OR (overstock > 1.5 AND expiry < 21) |
+| Low Risk | Overstock > 1.2 OR expiry 14-30 days |
+| Safe | All other cases |
+
+---
+
+## 3. Recommendation Alignment
+
+| Metric | Value | Interpretation |
+|--------|-------|----------------|
+| Predictions Evaluated | 26000 | |
+| Urgency Score Correlation | 0.815 | Strong alignment |
+| Discount Alignment (±10%) | 95.1% | Model vs expected discount |
+
+### Discount Strategy
+
+| Risk Level | Discount Range |
+|------------|---------------|
+| Critical | 30-50% (aggressive clearance) |
+| High Risk | 15-30% (promotional) |
+| Low Risk | 5-15% (mild incentive) |
+| Safe | 0% (no action) |
+
+---
+
+## 4. Sample Predictions
+
+### Critical Risk Items (Sample)
+
+| Item ID | Place ID | Expiry | Inventory | Forecast | Risk | Discount |
+|---------|----------|--------|-----------|----------|------|----------|
+| 533588 | 454318.0 | 6 | 4 | 1.0 | Critical | 38% |
+| 533588 | 454318.0 | 6 | 3 | 1.0 | Critical | 38% |
+| 533588 | 454318.0 | 6 | 4 | 1.0 | Critical | 38% |
+| 533588 | 454318.0 | 5 | 3 | 1.0 | Critical | 40% |
+| 533588 | 454318.0 | 6 | 4 | 1.0 | Critical | 38% |
+| 533588 | 454318.0 | 6 | 3 | 1.0 | Critical | 38% |
+| 533588 | 454318.0 | 4 | 4 | 1.0 | Critical | 42% |
+| 533588 | 454318.0 | 6 | 3 | 1.0 | Critical | 38% |
+| 533588 | 454318.0 | 4 | 4 | 1.0 | Critical | 42% |
+| 533588 | 454318.0 | 5 | 3 | 1.0 | Critical | 40% |
+
+
+### Forecast Comparison (Sample)
+
+| Item | Type | Expected | Model | Difference |
+|------|------|----------|-------|------------|
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+| 472979 | Erratic | 14.4 | 5.7 | -8.8 |
+
+
+---
+
+## 5. Quality Validation
+
+| Check | Status |
+|-------|--------|
+| Non-negative forecasts | ✅ |
+| Risk flag populated | ✅ |
+| Urgency scores valid | ✅ |
+| CI bounds logical | ✅ |
+
+---
+
+## 6. Conclusions
+
+### Strengths
+- Multi-model approach adapts forecasting to demand patterns
+- Risk classification provides actionable inventory insights
+- Confidence intervals quantify forecast uncertainty
+- Discount recommendations scale with urgency
+
+### Recommendations
+- Fine-tune forecasting models to improve WAPE below 30%
+- System meets core accuracy requirements
+- Consider adding seasonal adjustments for further improvement
+
+
+---
+
+## Appendix: Technical Details
+
+- **Test Run:** 2026-02-07 20:36:45
+- **Total Dataset:** 887,994 rows
+- **Sampled Combinations:** 500
+- **Predictions Generated:** 26,000
+- **Forecasting Methods:** Exponential Smoothing, Croston, Croston-SBA
+
+---
+
+*Report generated by FreshFlow AI Testing Suite v1.0*

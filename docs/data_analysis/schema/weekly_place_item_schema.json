@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "weekly_place_item",
+    "description": "Weekly aggregated demand at place-item level - primary forecasting dataset",
+    "type": "object",
+    "properties": {
+        "place_id": {
+            "type": "number",
+            "description": "Location identifier (FK to dim_places)"
+        },
+        "item_id": {
+            "type": "integer",
+            "description": "Product identifier (FK to dim_items)"
+        },
+        "week_start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start of week (Monday) in UTC"
+        },
+        "demand": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total quantity demanded in the week"
+        },
+        "transactions": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of order items in the week"
+        },
+        "avg_price": {
+            "type": "number",
+            "description": "Average unit price during the week"
+        },
+        "is_active": {
+            "type": "boolean",
+            "description": "Whether the place is currently active"
+        },
+        "days_active": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7,
+            "description": "Number of days with transactions in the week"
+        },
+        "data_version": {
+            "type": "string",
+            "description": "Data pipeline version"
+        }
+    },
+    "required": [
+        "place_id",
+        "item_id",
+        "week_start",
+        "demand"
+    ],
+    "additionalProperties": false
+}

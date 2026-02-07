@@ -1,0 +1,45 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "orders_clean",
+    "description": "Cleaned orders dataset with demo and cancelled orders removed",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key - unique order identifier"
+        },
+        "place_id": {
+            "type": "number",
+            "description": "Foreign key to dim_places. May have nulls."
+        },
+        "created_dt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Order creation timestamp in UTC"
+        },
+        "total_amount": {
+            "type": "number",
+            "description": "Total order amount in local currency"
+        },
+        "status": {
+            "type": "string",
+            "description": "Order status (e.g., closed, open)"
+        },
+        "type": {
+            "type": "string",
+            "description": "Order type (e.g., takeaway, delivery, eat-in)"
+        },
+        "demo_mode": {
+            "type": [
+                "integer",
+                "null"
+            ],
+            "description": "Demo mode flag (0=production, 1=demo, null=unknown)"
+        }
+    },
+    "required": [
+        "id",
+        "created_dt"
+    ],
+    "additionalProperties": false
+}

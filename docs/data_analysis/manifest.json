@@ -1,0 +1,117 @@
+{
+    "name": "inventory-forecasting-data-handoff",
+    "version": "1.0.0",
+    "generated_at": "2026-02-07T00:45:00Z",
+    "data_version": "1.0.0",
+    "description": "Production-ready data package for inventory forecasting model development",
+    "temporal_coverage": {
+        "start_date": "2021-02-12",
+        "end_date": "2024-02-16",
+        "timezone": "UTC"
+    },
+    "splits": {
+        "train": {
+            "start": "2021-02-12",
+            "end": "2023-06-30"
+        },
+        "validation": {
+            "start": "2023-07-01",
+            "end": "2023-10-31"
+        },
+        "test": {
+            "start": "2023-11-01",
+            "end": "2024-02-16"
+        }
+    },
+    "row_counts": {
+        "orders_clean": 343657,
+        "order_items_clean": 576652,
+        "dim_items_clean": 87713,
+        "dim_places_clean": 1824,
+        "weekly_place_item": 74766,
+        "features_place_item_week": 2455323,
+        "demand_classification": 15639
+    },
+    "data_files": [
+        {
+            "name": "orders_clean.parquet",
+            "path": "data/orders_clean.parquet",
+            "description": "Cleaned orders with demo/cancelled removed",
+            "format": "parquet",
+            "schema": "schema/orders_schema.json"
+        },
+        {
+            "name": "order_items_clean.parquet",
+            "path": "data/order_items_clean.parquet",
+            "description": "Cleaned order items with orphans removed",
+            "format": "parquet",
+            "schema": "schema/order_items_schema.json"
+        },
+        {
+            "name": "dim_items_clean.parquet",
+            "path": "data/dim_items_clean.parquet",
+            "description": "Product dimension table",
+            "format": "parquet"
+        },
+        {
+            "name": "dim_places_clean.parquet",
+            "path": "data/dim_places_clean.parquet",
+            "description": "Location dimension with activity flags",
+            "format": "parquet"
+        },
+        {
+            "name": "weekly_place_item.parquet",
+            "path": "data/weekly_place_item.parquet",
+            "description": "Weekly aggregated demand at place-item level",
+            "format": "parquet",
+            "schema": "schema/weekly_place_item_schema.json"
+        },
+        {
+            "name": "features_place_item_week.parquet",
+            "path": "data/features_place_item_week.parquet",
+            "description": "Feature-engineered dataset ready for modeling",
+            "format": "parquet",
+            "schema": "schema/features_schema.json"
+        },
+        {
+            "name": "demand_classification.csv",
+            "path": "data/demand_classification.csv",
+            "description": "SBC demand type classification per place-item",
+            "format": "csv"
+        }
+    ],
+    "scripts": [
+        {
+            "name": "01_cleaning.py",
+            "description": "Data cleaning pipeline"
+        },
+        {
+            "name": "02_aggregation.py",
+            "description": "Weekly aggregation pipeline"
+        },
+        {
+            "name": "03_feature_engineering.py",
+            "description": "Feature engineering with demand classification"
+        },
+        {
+            "name": "validate_checks.py",
+            "description": "Data validation checks"
+        }
+    ],
+    "demand_classification_thresholds": {
+        "adi_threshold": 1.32,
+        "cv2_threshold": 0.49
+    },
+    "filters_applied": [
+        "Removed demo_mode = 1 transactions",
+        "Removed cancelled orders",
+        "Removed inactive places (no orders in last 90 days)",
+        "Removed orphan order items",
+        "Removed negative quantities",
+        "Removed PII fields (customer_name, external_id, account_id)"
+    ],
+    "minimum_history_requirements": {
+        "weeks_of_history": 52,
+        "non_zero_demand_periods": 26
+    }
+}

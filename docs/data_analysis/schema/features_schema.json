@@ -1,0 +1,150 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "features_place_item_week",
+    "description": "Feature-engineered dataset for forecasting models with leakage-safe features",
+    "type": "object",
+    "properties": {
+        "place_id": {
+            "type": "number",
+            "description": "Location identifier"
+        },
+        "item_id": {
+            "type": "integer",
+            "description": "Product identifier"
+        },
+        "week_start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Week start date (Monday) in UTC"
+        },
+        "demand": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Target variable - weekly demand quantity"
+        },
+        "lag_1w": {
+            "type": "number",
+            "description": "Demand from 1 week ago"
+        },
+        "lag_2w": {
+            "type": "number",
+            "description": "Demand from 2 weeks ago"
+        },
+        "lag_4w": {
+            "type": "number",
+            "description": "Demand from 4 weeks ago"
+        },
+        "lag_52w": {
+            "type": "number",
+            "description": "Demand from same week last year"
+        },
+        "roll_mean_4w": {
+            "type": "number",
+            "description": "4-week rolling mean (excludes current week)"
+        },
+        "roll_std_4w": {
+            "type": "number",
+            "description": "4-week rolling standard deviation"
+        },
+        "roll_max_4w": {
+            "type": "number",
+            "description": "4-week rolling maximum"
+        },
+        "roll_min_4w": {
+            "type": "number",
+            "description": "4-week rolling minimum"
+        },
+        "zero_demand_ratio": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Historical ratio of weeks with zero demand"
+        },
+        "days_since_demand": {
+            "type": "number",
+            "description": "Weeks since last non-zero demand"
+        },
+        "demand_streak": {
+            "type": "integer",
+            "description": "Consecutive weeks with demand"
+        },
+        "cv_rolling": {
+            "type": "number",
+            "description": "Rolling coefficient of variation"
+        },
+        "avg_price_week": {
+            "type": "number",
+            "description": "Average price for the week"
+        },
+        "price_change_flag": {
+            "type": "integer",
+            "enum": [
+                0,
+                1
+            ],
+            "description": "1 if price changed from previous week"
+        },
+        "day_of_week": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "description": "Day of week for week_start (Monday=0)"
+        },
+        "week_of_year": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 53,
+            "description": "ISO week number"
+        },
+        "month": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Month (1-12)"
+        },
+        "is_weekend": {
+            "type": "integer",
+            "enum": [
+                0,
+                1
+            ],
+            "description": "Weekend flag (always 0 for weekly data)"
+        },
+        "is_holiday": {
+            "type": "integer",
+            "enum": [
+                0,
+                1
+            ],
+            "description": "1 if Danish holiday falls in the week"
+        },
+        "demand_type": {
+            "type": "string",
+            "enum": [
+                "Smooth",
+                "Erratic",
+                "Intermittent",
+                "Lumpy",
+                "Insufficient Data"
+            ],
+            "description": "SBC demand classification"
+        },
+        "train_val_test_flag": {
+            "type": "string",
+            "enum": [
+                "train",
+                "val",
+                "test"
+            ],
+            "description": "Temporal split assignment"
+        }
+    },
+    "required": [
+        "place_id",
+        "item_id",
+        "week_start",
+        "demand",
+        "train_val_test_flag"
+    ],
+    "additionalProperties": false
+}
